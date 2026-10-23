@@ -239,6 +239,12 @@ td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
 .served{opacity:.45;text-decoration:line-through}
 .order.hasadd{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent)}
 .detail-acts{display:grid;gap:8px}
+.sync{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--brand-ink);opacity:.9;background:rgba(0,0,0,.18);border-radius:999px;padding:5px 10px}
+.sync i{width:9px;height:9px;border-radius:50%;background:#3fb374;flex:none}
+.sync.off i{background:#ef5a4b}
+.sync.wait i{background:#e8b92c}
+.link-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.link-row input{flex:1;min-width:140px;font-size:17px;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);letter-spacing:.06em}
 /* ----- Paysage : téléphone ou tablette à plat sur le comptoir ----- */
 .col{display:grid;gap:12px;align-content:start;min-width:0}
 @media (orientation:landscape) and (min-width:560px){
@@ -347,6 +353,7 @@ th{text-transform:none;letter-spacing:0;font-size:13px;font-weight:500}
 <div class="app">
   <header>
     <div class="logo">Fish &amp; Chips<small>MONACO · MARCHÉ DE NOËL</small></div>
+    <button class="sync off" id="sync" type="button"><i></i><span>Cuisine non connectée</span></button>
     <nav class="tabs" role="tablist">
       <button class="tab" role="tab" id="t-caisse" aria-selected="true" data-v="caisse">Caisse</button>
       <button class="tab" role="tab" id="t-cuisine" aria-selected="false" data-v="cuisine">Cuisine <span class="badge" id="kbadge" hidden>0</span></button>
@@ -555,7 +562,7 @@ function openOrder(id){
     <div class="col">${clientTicket(o)}</div>`,
   e=>{const t=e.target.closest('button');if(!t)return;
     if('x' in t.dataset)closeSheet();
-    if('given' in t.dataset){o.status='done';save();updateBadge();renderObar();closeSheet();toast(`Commande ${pad(o.n)} remise`)}
+    if('given' in t.dataset){o.status='done';push({t:'status',id:o.id,status:'done'});save();updateBadge();renderObar();closeSheet();toast(`Commande ${pad(o.n)} remise`)}
     if('add' in t.dataset){addTo=o.id;cart=[];renderCart();closeSheet();toast(`Ajout à la commande ${pad(o.n)}`)}});
 }
 $('#canceladd').onclick=()=>{addTo=null;cart=[];renderCart()};
@@ -606,6 +613,7 @@ function finish(mode,given,pager){
     ao.batches=b;ao.lines.push(...cart.map(l=>({...l,u:lineUnit(l),b})));
     ao.extra.push({b,t:Date.now(),total:tot,pay:mode,given});
     if(hasPrep)ao.status='prep';
+    push({t:'save',id:ao.id});if(hasPrep)push({t:'status',id:ao.id,status:'prep'});
     addTo=null;cart=[];save();renderCart();$('#cart').classList.remove('open');updateBadge();
     sheet(`<div class="done-n"><span class="lbl">Ajout enregistré</span><div class="big">${pad(ao.n)}</div>${ao.pager?`<span class="pager" style="font-size:18px;margin-top:6px">Bipeur n° ${esc(ao.pager)}</span>`:''}</div>
       <div class="tickets">${hasPrep?kitchenTicket(ao,b):''}${clientTicket(ao,b)}</div>
@@ -616,7 +624,7 @@ function finish(mode,given,pager){
   if(prep)S.counter++;
   const o={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),n:prep?S.counter:null,t:Date.now(),
     lines:cart.map(l=>({...l,u:lineUnit(l),b:0})),total:cartTotal(),pay:mode,given,pager:prep?(pager||''):'',status:prep?'prep':'done',extra:[],batches:0,doneB:-1};
-  S.orders.push(o);save();cart=[];renderCart();$('#cart').classList.remove('open');updateBadge();
+  S.orders.push(o);push({t:'save',id:o.id});save();cart=[];renderCart();$('#cart').classList.remove('open');updateBadge();
   const head=o.n?`<div class="done-n"><span class="lbl">Commande validée · numéro à annoncer</span><div class="big">${pad(o.n)}</div>${o.pager?`<span class="pager" style="font-size:18px;margin-top:6px">Bipeur n° ${esc(o.pager)}</span>`:''}</div>`
     :`<div class="done-n"><span class="lbl">${o.total<0?'Rendez au client':'Opération enregistrée'}</span><div class="big">${eur(Math.abs(o.total))}</div></div>`;
   sheet(`${head}<div class="tickets">${o.n?kitchenTicket(o):''}${clientTicket(o)}</div>
@@ -676,7 +684,7 @@ function renderKitchen(){
 $('#v-cuisine').onclick=e=>{const t=e.target.closest('button');if(!t)return;
   if(t.dataset.f){kFilter=t.dataset.f;renderKitchen();return}
   const o=S.orders.find(x=>x.id===(t.dataset.ready||t.dataset.given));if(!o)return;
-  if(t.dataset.ready)o.doneB=o.batches;o.status=t.dataset.ready?'ready':'done';save();updateBadge();renderKitchen();renderObar();
+  if(t.dataset.ready)o.doneB=o.batches;o.status=t.dataset.ready?'ready':'done';push({t:'status',id:o.id,status:o.status,doneB:o.doneB});save();updateBadge();renderKitchen();renderObar();
   if(t.dataset.ready)toast(o.pager?`Bipez le n° ${o.pager}`:`Appelez le ${pad(o.n)}`)};
 function updateBadge(){const n=S.orders.filter(o=>o.status==='prep').length;const b=$('#kbadge');b.textContent=n;b.hidden=!n}
 
@@ -719,19 +727,24 @@ function renderBilan(){
      <div class="panel"><h3>Historique</h3>${S.orders.length?S.orders.slice().reverse().map(o=>`<div class="hist-row ${o.status==='cancel'?'cx':''}">
        <b class="num" style="font-size:20px">${o.n?pad(o.n):'—'}</b><span>${hm(o.t)} · ${o.total<0?'Retour Eco Cup':o.pay==='cb'?'Carte':'Espèces'}${o.pager?' · bipeur '+esc(o.pager):''}${o.extra&&o.extra.length?' · +'+o.extra.length+' ajout':''}</span><span class="num">${eur(oTotal(o))}</span>
        ${o.status==='cancel'?'<span class="mini">Annulée</span>':`<button class="mini" data-cx="${o.id}">Annuler</button>`}</div>`).join(''):'<div class="empty">Aucune opération.</div>'}</div>
+     <div class="panel"><h3>Écran cuisine</h3>
+       <p class="hint" style="margin-top:0">${PIN?`Connectée. Les ventes partent sur la tablette cuisine.${S.outbox.length?` ${S.outbox.length} envoi${S.outbox.length>1?'s':''} en attente de réseau.`:''}`:'Entrez le code caisse pour envoyer les commandes à la tablette cuisine.'}</p>
+       <div class="link-row"><input id="pinin" type="password" autocomplete="off" placeholder="${PIN?'Code enregistré':'Code caisse'}" aria-label="Code caisse"><button class="btn btn-primary" id="pinbtn" style="padding:10px 14px">${PIN?'Changer':'Connecter'}</button></div>
+       <p class="hint">Écran cuisine : ouvrez <b>cuisine.html</b> à la même adresse sur la tablette.</p></div>
      <div class="panel"><h3>Tarifs</h3><div class="tarifs">${tarifRows().map(([k,lab])=>{const p=price(k),id='p-'+k.replace('.','-');
        return `<label class="tarif" for="${id}"><span>${esc(lab)}</span><span class="tin"><input id="${id}" data-k="${k}" inputmode="decimal" value="${p==null?'':String(p).replace('.',',')}" placeholder="à définir"> €</span></label>`}).join('')}</div>
        <p class="hint">Les nouveaux prix s'appliquent aux prochaines ventes. Les ventes déjà faites gardent leur prix.</p></div>
    </div>
    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-ghost" id="copyz">Copier le bilan</button><button class="btn btn-danger" id="closeday">Clôturer la journée</button></div>
    <p class="note">Les ventes sont enregistrées sur cet appareil. Clôturez en fin de journée : le bilan est archivé et la numérotation repart à 001.${S.archives.length?` Journées archivées : ${S.archives.length} (dernière : ${eur(S.archives[S.archives.length-1].ca)}).`:''}</p>`;
+  $('#pinbtn').onclick=()=>connectPin($('#pinin').value.trim());
   $('#copyz').onclick=()=>{const txt=`FISH & CHIPS MONACO — Bilan du ${d}\nVentes TTC (hors consigne) : ${eur(s.sales)}\nCommandes : ${s.nOrders}\nCarte : ${eur(s.cb)}\nEspèces : ${eur(s.cash)}\nEco Cup : ${s.cupIn} donnés, ${s.cupOut} rendus, ${s.cupIn-s.cupOut} partis (${eur((s.cupIn-s.cupOut)*cupP)} de consigne gardée)\n\n`+s.rows.map(([k,v])=>`${v.q}× ${k} — ${eur(v.v)}`).join('\n');
     navigator.clipboard.writeText(txt).then(()=>toast('Bilan copié'),()=>toast('Copie impossible sur cet appareil'))};
   $('#closeday').onclick=()=>confirmBox('Clôturer la journée ?',`Le bilan (${eur(s.sales)}, ${s.nOrders} commandes) sera archivé et la caisse remise à zéro.`,'Clôturer',()=>{
-    S.archives.push({start:S.dayStart,end:Date.now(),ca:s.sales,cb:s.cb,cash:s.cash,n:s.nOrders,cupIn:s.cupIn,cupOut:s.cupOut});S.orders=[];S.counter=0;S.dayStart=Date.now();save();updateBadge();renderCart();renderBilan();toast('Journée clôturée')});
+    const cl={start:S.dayStart,end:Date.now(),ca:s.sales,cb:s.cb,cash:s.cash,n:s.nOrders,cupIn:s.cupIn,cupOut:s.cupOut};S.archives.push(cl);push({t:'closure',data:{...cl,rows:s.rows}});S.orders=[];S.counter=0;S.dayStart=Date.now();save();updateBadge();renderCart();renderBilan();toast('Journée clôturée')});
 }
 $('#v-bilan').onclick=e=>{const t=e.target.closest('[data-cx]');if(!t)return;const o=S.orders.find(x=>x.id===t.dataset.cx);
-  confirmBox(`Annuler ${o.n?'la commande '+pad(o.n):'cette opération'} ?`,`${eur(oTotal(o))} seront retirés du chiffre du jour.${oTotal(o)>0?' Pensez à rembourser le client.':''}`,'Confirmer l’annulation',()=>{o.status='cancel';if(addTo===o.id)addTo=null;save();updateBadge();renderCart();renderBilan()})};
+  confirmBox(`Annuler ${o.n?'la commande '+pad(o.n):'cette opération'} ?`,`${eur(oTotal(o))} seront retirés du chiffre du jour.${oTotal(o)>0?' Pensez à rembourser le client.':''}`,'Confirmer l’annulation',()=>{o.status='cancel';push({t:'status',id:o.id,status:'cancel'});if(addTo===o.id)addTo=null;save();updateBadge();renderCart();renderBilan()})};
 $('#v-bilan').addEventListener('change',e=>{const i=e.target.closest('input[data-k]');if(!i)return;
   const v=num(i.value);S.prices[i.dataset.k]=v;save();renderCatalog();renderCart();toast(v==null?'Prix retiré':'Tarif enregistré')});
 
@@ -748,7 +761,58 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>show(t.dataset.v));
 setInterval(()=>{if(view==='cuisine'&&!$('#layer').innerHTML)renderKitchen()},30000);
 let wl;document.addEventListener('click',async()=>{if(wl||!navigator.wakeLock)return;try{wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>wl=null)}catch(e){}},{passive:true});
 
-renderCatalog();renderCart();updateBadge();
+/* ---------- Synchro cuisine (Supabase) ---------- */
+const SB_URL='https://cytgdpeoxhxempnewrep.supabase.co',SB_KEY='sb_publishable_5nYZv-C8Bfc7AErue3h9-g_D8OUnOOW';
+let PIN='';try{PIN=localStorage.getItem('fc-caisse-pin')||''}catch(e){}
+S.outbox=S.outbox||[];
+let flushing=false,lastOk=0,syncErr='';
+async function rpc(fn,args){
+  const r=await fetch(`${SB_URL}/rest/v1/rpc/${fn}`,{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(args)});
+  const txt=await r.text();if(!r.ok)throw new Error(txt||String(r.status));return txt?JSON.parse(txt):null;
+}
+function push(op){S.outbox.push(op);save();setTimeout(flush,0)}
+async function flush(){
+  if(flushing||!PIN)return syncUI();flushing=true;
+  try{
+    while(S.outbox.length){const op=S.outbox[0];
+      if(op.t==='save'){const o=S.orders.find(x=>x.id===op.id);if(o)await rpc('fc_save_order',{p_pin:PIN,p_order:o})}
+      else if(op.t==='status')await rpc('fc_set_status',{p_pin:PIN,p_id:op.id,p_status:op.status,p_done_b:op.doneB==null?null:op.doneB});
+      else if(op.t==='closure')await rpc('fc_save_closure',{p_pin:PIN,p_data:op.data});
+      S.outbox.shift();save()}
+    lastOk=Date.now();syncErr='';
+  }catch(e){syncErr=String(e.message).includes('invalide')?'pin':'net'}
+  finally{flushing=false;syncUI()}
+}
+async function pull(){
+  if(!PIN||flushing||S.outbox.length)return;
+  try{const list=await rpc('fc_status_list',{p_pin:PIN})||[];let ch=false;
+    list.forEach(r=>{const o=S.orders.find(x=>x.id===r.id);if(!o||o.status==='cancel')return;
+      if(o.status!==r.status||o.doneB!==r.doneB){if(r.status==='ready'&&o.status==='prep')toast(o.pager?`${pad(o.n)} prête · bipez le ${o.pager}`:`Commande ${pad(o.n)} prête`);
+        o.status=r.status;o.doneB=r.doneB;ch=true}});
+    if(ch){save();updateBadge();renderObar();if(view==='cuisine'&&!$('#layer').innerHTML)renderKitchen()}
+    lastOk=Date.now();syncErr='';
+  }catch(e){syncErr=String(e.message).includes('invalide')?'pin':'net'}
+  syncUI();
+}
+function syncUI(){const el=$('#sync');if(!el)return;const t=el.querySelector('span');el.classList.remove('off','wait');
+  if(!PIN){el.classList.add('off');t.textContent='Cuisine non connectée'}
+  else if(syncErr==='pin'){el.classList.add('off');t.textContent='Code caisse refusé'}
+  else if(S.outbox.length){el.classList.add('wait');t.textContent=`${S.outbox.length} en attente de réseau`}
+  else if(syncErr==='net'||!lastOk){el.classList.add(lastOk?'wait':'off');t.textContent=lastOk?'Réseau coupé':'Connexion…'}
+  else t.textContent='Cuisine connectée'}
+async function connectPin(v){
+  if(!v)return toast('Entrez le code caisse');
+  try{const role=await rpc('fc_ping',{p_pin:v});if(role!=='caisse')return toast('Code caisse incorrect');
+    PIN=v;try{localStorage.setItem('fc-caisse-pin',v)}catch(e){}
+    S.orders.filter(o=>o.n).forEach(o=>{if(!S.outbox.some(x=>x.t==='save'&&x.id===o.id))S.outbox.push({t:'save',id:o.id})});save();
+    toast('Cuisine connectée');syncErr='';await flush();if(view==='bilan')renderBilan()}
+  catch(e){toast('Pas de réseau. Réessayez dans un instant.')}
+}
+$('#sync').onclick=()=>show('bilan');
+setInterval(()=>{flush();pull()},4000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){flush();pull()}});
+
+renderCatalog();renderCart();updateBadge();syncUI();flush();
 </script>
 
 </body>
