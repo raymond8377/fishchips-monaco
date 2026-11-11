@@ -89,7 +89,7 @@ function slides(){
     {ph:PHOTO.mix,cat:'À partager',name:'Mix Box',sub:'Composez votre assortiment : colin, aiguillettes, encornets, Saint-Jacques',prices:pr('Avec frites','mix.formule')+pr('Sans frites','mix.seul',1)},
     {ph:PHOTO.sal,cat:'Au feu de bois',name:'Saumon planche',sub:'Cuit au feu de bois · en pain ou en barquette',prices:pr('En pain','sal.pain')+pr('Barquette + frites','sal.bqf')+pr('Barquette','sal.bq',1)},
     {ph:PHOTO.pf||PH_FR,cat:'Frites maison',name:'Nos frites',sub:'Coupées et frites sur place',prices:pr('Petite','pf',1)+pr('Grande','gf'),extra:`<div class="opt">Avec <b>cheddar</b> fondu +${eur(P.cheddar)}</div>`},
-    {ph:PHOTO.soda||PHOTO.eau,cat:'Boissons',name:'À boire',sub:`Bière en Eco Cup (consigne ${eur(P.cup)} remboursée au retour du verre)`,prices:pr('Bière','beer')+pr('Soda','soda',1)+pr('Fever-Tree','ft',1)+pr('Eau','eau',1)},
+    {ph:PHOTO.soda||PHOTO.eau,cat:'Boissons',name:'À boire',sub:`Bière servie en Eco Cup : ${eur(P.cup)} de consigne inclus, rendus au retour du verre`,prices:(P.beer!=null?`<div class="p"><small>Bière</small><b>${eur(+P.beer+(+P.cup||0))}</b></div>`:'')+pr('Soda','soda',1)+pr('Fever-Tree','ft',1)+pr('Eau','eau',1)},
     {card:true}
   ];
   return s;
@@ -99,7 +99,7 @@ function cardHTML(){
   return `<div class="card"><h2>La <span>carte</span></h2>
    ${r('Fish & chips cabillaud','cab.formule','cab.seul')}${r('Aiguillettes de colin','aig.formule','aig.seul')}${r('Shunk de colin','shk.formule','shk.seul')}
    ${r('Encornets','enc')}${r('Saint-Jacques','sj')}${r('Mix Box','mix.formule','mix.seul')}${r('Saumon planche (pain)','sal.pain')}
-   ${r('Petite frite','pf')}${r('Grande frite','gf')}${r('Bière (Eco Cup incluse)','beer')}${r('Soda','soda')}${r('Fever-Tree','ft')}${r('Eau','eau')}
+   ${r('Petite frite','pf')}${r('Grande frite','gf')}${P.beer!=null?`<div class="row"><span class="n">Bière <small style="opacity:.7">dont ${eur(P.cup)} consigne Eco Cup</small></span><span class="v">${eur(+P.beer+(+P.cup||0))}</span></div>`:''}${r('Soda','soda')}${r('Fever-Tree','ft')}${r('Eau','eau')}
    <div class="row" style="border:0;opacity:.85"><span class="n">Spicy +${eur(P.spicy)} · Cheddar +${eur(P.cheddar)}</span></div></div>`
 }
 let S=[],i=-1,last='';
