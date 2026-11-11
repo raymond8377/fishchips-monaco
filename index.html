@@ -596,6 +596,7 @@ function openOrder(id){
       <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:6px"><span class="state ${o.status==='ready'?'ready':''}">${ST[o.status]}</span>${o.pager?`<span class="pager">Bipeur ${esc(o.pager)}</span>`:''}</div></div>
     <div class="detail-acts"><button class="btn btn-primary" data-add>Ajouter des produits</button>
       ${o.status==='ready'?'<button class="btn btn-ok" data-given>Remise au client</button>':''}
+      <button class="btn btn-ghost" data-print="${o.id}">🖨 Réimprimer le ticket</button>
       <button class="btn btn-ghost" data-x>Fermer</button></div></div>
     <div class="col">${clientTicket(o)}</div>`,
   e=>{const t=e.target.closest('button');if(!t)return;
@@ -644,6 +645,41 @@ function openPay(){
   };
   draw();
 }
+
+/* ---------- Impression ticket client (imprimante Bluetooth via l'appli RawBT sur Android) ---------- */
+const PRINT_AUTO=()=>{try{return localStorage.getItem('fc-print-auto')==='1'}catch(e){return false}};
+function setPrintAuto(v){try{localStorage.setItem('fc-print-auto',v?'1':'0')}catch(e){};toast(v?'Impression automatique activée':'Impression automatique coupée');if(view==='bilan')renderBilan()}
+const noAcc=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’‘]/g,"'").replace(/−/g,'-').replace(/€/g,'EUR').replace(/×/g,'x').replace(/[^\x20-\x7E\n]/g,'');
+const peur=n=>noAcc(eur(n));
+function escposTicket(o,batch){
+  if(batch){const x=o.extra.find(e=>e.b===batch);o={...o,lines:o.lines.filter(l=>l.b===batch),total:x.total,pay:x.pay,given:x.given,t:x.t,extra:[],isAdd:true}}
+  const W=42,B=[],T=s=>{for(const c of noAcc(s))B.push(c.charCodeAt(0))},C=(...a)=>B.push(...a),NL=()=>B.push(10);
+  const row=(l,r)=>{l=noAcc(l);r=noAcc(r);const sp=W-r.length;if(l.length>sp-1){const w=[];let cur='';l.split(' ').forEach(x=>{if((cur+' '+x).trim().length>sp-1){w.push(cur);cur=x}else cur=(cur+' '+x).trim()});w.push(cur);w.forEach((s,i)=>{T(i===w.length-1?s.padEnd(sp)+r:s);NL()})}else{T(l.padEnd(sp)+r);NL()}};
+  const line=()=>{T('-'.repeat(W));NL()};
+  const d=new Date(o.t);
+  C(27,64);C(27,97,1);C(27,69,1);C(29,33,17);T('FISH & CHIPS');NL();C(29,33,0);C(27,69,0);T('Monaco - Marche de Noel');NL();
+  T(d.toLocaleDateString('fr-FR')+'  '+hm(o.t));NL();line();
+  if(o.n){T(o.isAdd?'AJOUT A LA COMMANDE':'VOTRE COMMANDE');NL();C(29,33,51);C(27,69,1);T(pad(o.n));NL();C(29,33,0);C(27,69,0);
+    if(o.pager){C(29,33,17);T('BIPEUR '+o.pager);NL();C(29,33,0)}}
+  else{T(o.total<0?'REMBOURSEMENT':'RECU');NL()}
+  line();C(27,97,0);
+  o.lines.forEach(l=>{row(`${l.q}x ${lineLabel(l)}`,peur(l.u*l.q));const op=lineOpts(l);if(op){T('   '+op);NL()}});
+  line();C(27,69,1);C(29,33,1);row('TOTAL TTC'.padEnd(10),peur(oTotal(o)));C(29,33,0);C(27,69,0);
+  if(o.total<0)row('Rendu en especes',peur(-o.total));
+  else{row(o.pay==='cb'?'Paye par carte':'Especes recues',o.pay==='cb'?'':peur(o.given));if(o.pay==='cash'&&o.given>o.total)row('Rendu',peur(o.given-o.total))}
+  line();C(27,97,1);
+  if(o.lines.some(l=>l.id==='cupin')){T(`Consigne Eco Cup ${peur(price('cup'))} incluse.`);NL();T('Rapportez le cup, on vous rembourse.');NL()}
+  if(o.n){T('Gardez ce ticket jusqu\'au retrait.');NL();T('En cas de souci, montrez-le au stand.');NL()}
+  T('Merci et a bientot !');NL();NL();NL();NL();C(29,86,66,0);
+  let bin='';B.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin);
+}
+function printTicket(o,batch){
+  try{const b64=escposTicket(o,batch);
+    window.location.href='intent:base64,'+b64+'#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;';
+  }catch(e){toast('Impression impossible')}
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-print]');if(!b)return;e.stopPropagation();
+  const o=S.orders.find(x=>x.id===b.dataset.print);if(o)printTicket(o,b.dataset.b?+b.dataset.b:undefined)},true);
 function finish(mode,given,pager){
   const ao=addTo&&S.orders.find(o=>o.id===addTo);
   if(ao){
@@ -655,7 +691,9 @@ function finish(mode,given,pager){
     addTo=null;cart=[];save();renderCart();$('#cart').classList.remove('open');updateBadge();
     sheet(`<div class="done-n"><span class="lbl">Ajout enregistré</span><div class="big">${pad(ao.n)}</div>${ao.pager?`<span class="pager" style="font-size:18px;margin-top:6px">Bipeur n° ${esc(ao.pager)}</span>`:''}</div>
       <div class="tickets">${hasPrep?kitchenTicket(ao,b):''}${clientTicket(ao,b)}</div>
+      <button class="btn btn-ghost" data-print="${ao.id}" data-b="${b}">🖨 Imprimer le ticket</button>
       <button class="btn btn-primary" data-x>Nouvelle commande</button>`,e=>{if(e.target.closest('[data-x]'))closeSheet()},'done');
+    if(PRINT_AUTO())setTimeout(()=>printTicket(ao,b),300);
     return;
   }
   const prep=cart.some(l=>M(l.id).poste);
@@ -666,7 +704,9 @@ function finish(mode,given,pager){
   const head=o.n?`<div class="done-n"><span class="lbl">Commande validée · numéro à annoncer</span><div class="big">${pad(o.n)}</div>${o.pager?`<span class="pager" style="font-size:18px;margin-top:6px">Bipeur n° ${esc(o.pager)}</span>`:''}</div>`
     :`<div class="done-n"><span class="lbl">${o.total<0?'Rendez au client':'Opération enregistrée'}</span><div class="big">${eur(Math.abs(o.total))}</div></div>`;
   sheet(`${head}<div class="tickets">${o.n?kitchenTicket(o):''}${clientTicket(o)}</div>
+    <button class="btn btn-ghost" data-print="${o.id}">🖨 Imprimer le ticket</button>
     <button class="btn btn-primary" data-x>Nouvelle commande</button>`,e=>{if(e.target.closest('[data-x]'))closeSheet()},'done');
+  if(PRINT_AUTO())setTimeout(()=>printTicket(o),300);
 }
 
 /* ---------- Tickets ---------- */
@@ -745,6 +785,9 @@ function renderBilan(){
   const s=stats(),cupP=price('cup');
   const d=new Date(S.dayStart).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
   $('#v-bilan').innerHTML=`<div class="lbl" style="margin-bottom:8px">Journée ouverte le ${d} à ${hm(S.dayStart)}</div>
+   <div class="panel" style="margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><b style="flex:1;min-width:200px">🖨 Imprimante tickets (appli RawBT)</b>
+     <button class="btn ${PRINT_AUTO()?'btn-primary':'btn-ghost'}" onclick="setPrintAuto(${PRINT_AUTO()?0:1})">${PRINT_AUTO()?'Impression auto : OUI':'Impression auto : NON'}</button>
+     <button class="btn btn-ghost" onclick="printTicket({id:'test',n:999,t:Date.now(),pager:'12',lines:[{id:'cab',variant:'formule',q:1,u:17,mix:[]}],total:17,pay:'cb',given:17,extra:[]})">Ticket test</button></div>
    <div class="kpis">
      <div class="kpi main"><div class="lbl">Ventes TTC (hors consigne)</div><div class="v">${eur(s.sales)}</div></div>
      <div class="kpi"><div class="lbl">Commandes</div><div class="v">${s.nOrders}</div></div>
