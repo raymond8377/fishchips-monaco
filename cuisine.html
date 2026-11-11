@@ -50,7 +50,7 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var
 main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 120px}
 .ready{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px}
 .ready:empty{display:none}
-.rcard{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:120px;padding:10px 14px;border-radius:10px;border:2px solid var(--ok);background:color-mix(in srgb,var(--ok) 16%,var(--surface))}
+.rcard{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:120px;padding:10px 14px;border-radius:10px;border:2px solid var(--ok);background:#e2f1e8;background:color-mix(in srgb,var(--ok) 16%,var(--surface))}
 .rcard small{font-size:13px;color:var(--ok);font-weight:600}
 .rcard b{font-size:30px;line-height:1.05}
 .rcard span{font-size:13px;color:var(--muted)}
@@ -58,9 +58,9 @@ main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;align-items:start}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px;min-width:0}
-.card.add{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent)}
+.card.add{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent)}
 .card.fresh{animation:flash 1.2s ease 2}
-@keyframes flash{50%{background:color-mix(in srgb,var(--chips) 22%,var(--surface))}}
+@keyframes flash{50%{background:#f6edd2;background:color-mix(in srgb,var(--chips) 22%,var(--surface))}}
 .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .top .n{font-size:44px;font-weight:700;line-height:1}
 .pager{background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:5px 10px;font-weight:700;font-size:17px}
