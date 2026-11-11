@@ -15,19 +15,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}
-:root{--red:#8b0000;--cream:#f6e7d2;--ink:#0d0d0d}
+:root{--red:#8b0000;--cream:#f6e7d2;--ink:#0d0d0d;--gold:#c9a45a}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--red)}
+body{background:radial-gradient(ellipse at 50% 35%,#9e0d0d 0%,#8b0000 45%,#5e0000 100%)}
 body{color:var(--cream);font-family:"Libre Baskerville",Georgia,"Times New Roman",serif;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .sl{position:absolute;inset:0;opacity:0;transition:opacity 1s ease;display:flex;align-items:center;justify-content:center;padding:5vmin 6vmin}
 .sl.on{opacity:1}
 /* Diapo produit */
 .prod{display:grid;grid-template-columns:1.15fr 1fr;gap:5vmin;align-items:center;width:100%;height:100%}
 @media (orientation:portrait){.prod{grid-template-columns:1fr;grid-template-rows:auto 1fr;gap:4vmin}}
-.frame{border:.6vmin solid #fff;padding:1.2vmin;background:var(--red);box-shadow:0 2vmin 5vmin rgba(0,0,0,.35)}
+.frame{border:.5vmin solid var(--cream);padding:1vmin;background:var(--red);box-shadow:0 0 0 .25vmin var(--gold),0 3vmin 6vmin rgba(0,0,0,.45);outline:.15vmin solid var(--gold);outline-offset:-1.6vmin}
+.prod.sq .frame img,.frame.sqf img{aspect-ratio:1/1}
+.prod.sq{grid-template-columns:.85fr 1fr}
+.prod.sq .frame,.frame.sqf{max-height:76vh;aspect-ratio:auto}
+.prod.sq .frame img,.frame.sqf img{max-height:calc(76vh - 3vmin);width:auto;max-width:100%;margin:auto}
 .frame img{display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:cover}
 .info{display:flex;flex-direction:column;gap:2.2vmin;min-width:0}
-.tag{align-self:flex-start;background:var(--cream);color:var(--red);border-radius:1.4vmin;padding:1vmin 2.4vmin;font-size:2.8vmin;letter-spacing:.06em;text-transform:uppercase}
-.nm{font-size:6.4vmin;font-weight:700;line-height:1.08;text-decoration:underline;text-decoration-thickness:.35vmin;text-underline-offset:1vmin}
+.tag{align-self:flex-start;background:var(--cream);color:var(--red);box-shadow:0 0 0 .2vmin var(--gold);border-radius:1.4vmin;padding:1vmin 2.4vmin;font-size:2.8vmin;letter-spacing:.06em;text-transform:uppercase}
+.nm{text-shadow:0 .4vmin 1.6vmin rgba(0,0,0,.35);font-size:6.4vmin;font-weight:700;line-height:1.08;text-decoration:underline;text-decoration-thickness:.35vmin;text-underline-offset:1vmin}
 .sub{font-size:3.6vmin;line-height:1.3}
 .en{display:flex;align-items:center;gap:1.6vmin;font-style:italic;font-size:2.4vmin;opacity:.95}
 .flag{width:4.4vmin;height:auto;flex:none;border-radius:.4vmin}
@@ -35,7 +40,7 @@ body{color:var(--cream);font-family:"Libre Baskerville",Georgia,"Times New Roman
 .pz{display:flex;flex-direction:column;align-items:center;gap:1vmin}
 .pz small{font-size:2.4vmin;text-align:center;line-height:1.2}
 /* Étiquette noire coins découpés, comme la carte */
-.tk{--n:2.6vmin;background:var(--ink);color:#fff;padding:1.6vmin 3.6vmin;text-align:center;min-width:20vmin;
+.tk{--n:2.6vmin;background:linear-gradient(180deg,#1b1b1b,#050505);color:#fff;padding:1.6vmin 3.6vmin;text-align:center;min-width:20vmin;
   -webkit-mask:radial-gradient(circle var(--n) at 0 0,#0000 98%,#000) top left,radial-gradient(circle var(--n) at 100% 0,#0000 98%,#000) top right,radial-gradient(circle var(--n) at 0 100%,#0000 98%,#000) bottom left,radial-gradient(circle var(--n) at 100% 100%,#0000 98%,#000) bottom right;
   -webkit-mask-size:51% 51%;-webkit-mask-repeat:no-repeat;
   mask:radial-gradient(circle var(--n) at 0 0,#0000 98%,#000) top left,radial-gradient(circle var(--n) at 100% 0,#0000 98%,#000) top right,radial-gradient(circle var(--n) at 0 100%,#0000 98%,#000) bottom left,radial-gradient(circle var(--n) at 100% 100%,#0000 98%,#000) bottom right;
@@ -52,13 +57,14 @@ body{color:var(--cream);font-family:"Libre Baskerville",Georgia,"Times New Roman
 .li .n small{display:block;font-size:2.6vmin;font-style:italic;opacity:.85;margin-top:.6vmin}
 .li .tk{min-width:16vmin;padding:1.2vmin 2.6vmin}
 .li .tk b{font-size:5.6vmin}
-.combo{display:grid;grid-template-columns:1fr 1.1fr;gap:5vmin;align-items:center;width:100%}
+.combo{display:grid;grid-template-columns:.8fr 1.1fr;gap:5vmin;align-items:center;width:100%}
 @media (orientation:portrait){.combo{grid-template-columns:1fr}}
 /* Accueil et carte */
 .logo{width:min(80vmin,85%);height:auto}
 .carte{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
 .sl.full{padding:0}
-body::after{content:'';position:fixed;inset:2vmin;border:.35vmin solid var(--cream);pointer-events:none;z-index:4}
+body::before{content:'';position:fixed;inset:1.6vmin;border:.25vmin solid var(--gold);pointer-events:none;z-index:4}
+body::after{content:'';position:fixed;inset:2.6vmin;border:.12vmin solid rgba(201,164,90,.6);pointer-events:none;z-index:4}
 .sl.full::after{display:none}
 .side{display:flex;align-items:center;justify-content:center}.side img{width:100%;max-width:56vmin;height:auto}
 .dots{position:fixed;left:50%;bottom:2vmin;transform:translateX(-50%);display:flex;gap:1.2vmin;z-index:5}
@@ -103,21 +109,25 @@ function fishSlide(img,tagTxt,name,sub,en,kf,ks){
    <div class="en">${FLAG}<span>${en}</span></div>
    <div class="prices">${has(kf)?`<div class="pz"><small>Formule poisson<br>+ grande frite</small><div class="tk"><b>${eur(+P[kf])}</b>${has(ks)?`<span>Poisson seul :</span><em>${eur(+P[ks])}</em>`:''}</div></div>`:tk(ks,'Poisson seul')}</div>
    <div class="spicy">🌶️ Spicy version en supplément +${eur(+P.spicy)}</div></div></div>`}
+const SP=()=>`<div class="spicy">🌶️ Spicy version en supplément +${eur(+P.spicy)}</div>`;
+function itemSlide(img,sq,tagTxt,name,sub,en,prices,extra){
+  if(!prices)return '';
+  return `<div class="prod ${sq?'sq':''}"><div class="frame"><img src="${A}${img}" alt=""></div>
+   <div class="info"><span class="tag">${tagTxt}</span><div class="nm">${name}</div><div class="sub">${sub}</div>
+   ${en?`<div class="en">${FLAG}<span>${en}</span></div>`:''}<div class="prices">${prices}</div>${extra||''}</div></div>`}
+const pz=(label,k)=>has(k)?`<div class="pz"><small>${label}</small>${tk(k)}</div>`:'';
 function build(){
   const S=[];
   S.push({full:1,h:`<img class="logo" src="${A}logo-clair.png" alt="Fish & Chips · Christmas Market Monaco">`});
   S.push({h:fishSlide('cabillaud.jpg','Fish and chips','Fish and chips de cabillaud','Accompagné de frites et sauce tartare maison','Cod fish and chips served with fries and homemade tartar sauce','cab.formule','cab.seul')});
   S.push({h:fishSlide('aiguillettes.jpg','Fish and chips',"Aiguillettes de colin d'Alaska",'Façon fish &amp; chips, accompagné de frites et sauce tartare maison','Alaska pollock fillets fish and chips served with fries and homemade tartar sauce','aig.formule','aig.seul')});
   S.push({h:fishSlide('nuggets.jpg','Fish and chips',"Shunk de colin d'Alaska","Nuggets de colin d'Alaska façon fish and chips, sauce au choix",'Chunks Alaska pollock nuggets, fish and chips style, with your choice of sauce','shk.formule','shk.seul')});
-  if(has('enc')||has('sj'))S.push({h:`<div class="combo"><div class="frame"><img src="${A}encornets.jpg" alt=""></div><div class="list"><span class="tag">Fritures de la mer</span>
-    ${has('enc')?`<div class="li"><span class="n">Calamars façon fish and chips<small>5 pièces · Squid rings, fish and chips style</small></span>${tk('enc')}</div>`:''}
-    ${has('sj')?`<div class="li"><span class="n">Saint-Jacques façon fish and chips<small>Scallops, fish and chips style</small></span>${tk('sj')}</div>`:''}
-    <div class="spicy">🌶️ Spicy version en supplément +${eur(+P.spicy)}</div></div></div>`});
-  if(has('pf')||has('gf'))S.push({h:`<div class="combo"><div class="side"><img src="${A}logo-clair.png" alt=""></div><div class="list"><span class="tag">Frites maison</span>
-    ${has('pf')?`<div class="li"><span class="n">Petite frite<small>Homemade fries · small</small></span>${tk('pf')}</div>`:''}
-    ${has('gf')?`<div class="li"><span class="n">Grande frite<small>Homemade fries · large</small></span>${tk('gf')}</div>`:''}
-    <div class="li" style="border:0"><span class="n"><i>Cheddar fondu</i> + ${eur(+P.cheddar)}</span></div></div></div>`});
-  S.push({h:`<div class="combo"><div class="side"><img src="${A}logo-clair.png" alt=""></div><div class="list"><span class="tag">Les boissons</span>
+  S.push({h:itemSlide('encornets.jpg',0,'Fritures de la mer','Calamars façon fish and chips','5 pièces, sauce tartare maison et citron','Squid rings, fish and chips style',pz('La barquette','enc'),SP())});
+  S.push({h:itemSlide('c-sj.jpg',1,'Fritures de la mer','Saint-Jacques façon fish and chips','Noix de Saint-Jacques croustillantes, sauce tartare maison','Crispy scallops, fish and chips style',pz('La barquette','sj'),SP())});
+  S.push({h:itemSlide('c-mix.jpg',1,'À partager','Mix Box','Composez votre assortiment : colin, aiguillettes, calamars, Saint-Jacques','Mixed seafood box, your choice',pz('Avec frites','mix.formule')+pz('Sans frites','mix.seul'),SP())});
+  S.push({h:itemSlide('c-sal.jpg',1,'Au feu de bois','Saumon planche','Saumon cuit au feu de bois, en pain ou en barquette','Wood-fired salmon, in a sandwich or a tray',pz('En pain','sal.pain')+pz('Barquette + frites','sal.bqf')+pz('Barquette','sal.bq'))});
+  S.push({h:itemSlide('c-frites.jpg',1,'Frites maison','Nos frites maison','Coupées et frites sur place, sauce au choix','Homemade fries',pz('Petite','pf')+pz('Grande','gf'),`<div class="spicy"><i>Cheddar fondu</i> + ${eur(+P.cheddar)}</div>`)});
+  S.push({h:`<div class="combo"><div class="frame sqf"><img src="${A}c-soda.jpg" alt=""></div><div class="list"><span class="tag">Les boissons</span>
     ${has('eau')?`<div class="li"><span class="n">Eau plate / gazeuse<small>Still or sparkling water</small></span>${tk('eau')}</div>`:''}
     ${has('soda')?`<div class="li"><span class="n">Soda<small>Coca-Cola, Orangina, Ice Tea…</small></span>${tk('soda')}</div>`:''}
     ${has('ft')?`<div class="li"><span class="n">Fever-Tree<small>British tonic &amp; ginger</small></span>${tk('ft')}</div>`:''}
