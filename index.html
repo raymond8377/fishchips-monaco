@@ -370,6 +370,15 @@ th{text-transform:none;letter-spacing:0;font-size:13px;font-weight:500}
 #bip .bq{font-size:14px;color:#bf3b2f;font-weight:700;margin:-10px 0 16px}
 #bip button{width:100%;padding:20px;border-radius:12px;background:#2c8a57;color:#fff;font-size:22px;font-weight:800}
 @keyframes bipin{from{transform:scale(.85);opacity:0}}
+
+/* Anti-débordement (tablettes Android) */
+html,body{max-width:100%;overflow-x:hidden}
+.app{grid-template-columns:minmax(0,1fr);width:100%}
+main,.pos,.pos .catalog,.cart,.grid,.obar{min-width:0}
+.pos{grid-template-columns:minmax(0,1fr)}
+@media (min-width:820px),(orientation:landscape) and (min-width:560px){.pos{grid-template-columns:minmax(0,1fr) minmax(260px,32%)}}
+.tabs{flex-wrap:nowrap}
+header .logo{min-width:0}
 </style>
 
 </head>
