@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,7 +13,7 @@
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden}
-body{background:#2a0912;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Roboto,Arial,sans-serif;-webkit-user-select:none;user-select:none}
+body{touch-action:none;-webkit-touch-callout:none;overscroll-behavior:none;background:#2a0912;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Roboto,Arial,sans-serif;-webkit-user-select:none;user-select:none}
 .scr{position:absolute;inset:0;display:flex;flex-direction:column;padding:4vmin 5vmin}
 .brand{font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:3.2vmin;opacity:.75;display:flex;justify-content:space-between}
 .brand small{font-weight:600;letter-spacing:.1em}
@@ -98,6 +98,10 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 document.addEventListener('click',wake);
 if(PIN){render(null,0);poll()}else showLogin();
 wake();setInterval(poll,1200);
+/* Écran verrouillé pour les clients : pas de zoom, pas de menu, pas de défilement */
+['contextmenu','gesturestart','dblclick','selectstart'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
 </script>
 </body>
 </html>
