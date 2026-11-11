@@ -907,10 +907,11 @@ function bipShow(){const el=$('#bip');if(!BIPQ.length){el.hidden=true;el.innerHT
 
 /* ---------- Écran client (client.html) : panier et total en direct ---------- */
 let dispT=null,dispData={s:'idle'};
-function dispSend(){clearTimeout(dispT);dispT=setTimeout(()=>{if(PIN)rpc('fc_set_display',{p_pin:PIN,p_data:dispData}).catch(()=>{})},250)}
+function dispSend(){clearTimeout(dispT);dispT=setTimeout(()=>{if(!PIN)return;const pz={};Object.keys(DEF).forEach(k=>pz[k]=price(k));rpc('fc_set_display',{p_pin:PIN,p_data:Object.assign({},dispData,{prices:pz})}).catch(()=>{})},250)}
 function dispCart(){dispData=cart.length?{s:'cart',lines:cart.map(l=>({q:l.q,name:lineLabel(l),opts:lineOpts(l),p:lineUnit(l)*l.q})),total:cartTotal(),t:Date.now()}:{s:'idle',t:Date.now()};dispSend()}
 function dispPaid(o,tot,mode,given){dispData={s:'paid',n:o.n||null,pager:o.pager||'',total:tot,pay:mode,rendu:mode==='cash'&&given>tot?given-tot:0,t:Date.now()};dispSend()}
 const _renderCart=renderCart;renderCart=function(){_renderCart();dispCart()};
+setTimeout(dispCart,1500);
 const _finish=finish;finish=function(mode,given,pager){const tot=cartTotal(),ao=addTo&&S.orders.find(o=>o.id===addTo);_finish(mode,given,pager);
   const o=ao||S.orders[S.orders.length-1];if(o)dispPaid(o,tot,mode,given)};
 $('#sync').onclick=()=>show('bilan');
