@@ -904,6 +904,15 @@ function bipShow(){const el=$('#bip');if(!BIPQ.length){el.hidden=true;el.innerHT
     :`<div class="bc"><div class="bl">Commande prête · Appelez le</div><div class="bn">${pad(b.n)}</div><div class="bo">Appelez le client puis validez</div>${more?`<div class="bq">+ ${more} autre${more>1?'s':''} en attente</div>`:''}<button type="button" id="bipok">✓ Appelé</button></div>`;
   el.hidden=false;$('#bipok').onclick=()=>{BIPQ.shift();bipShow()};
   bipTone();clearInterval(bipRep);bipRep=setInterval(bipTone,8000)}
+
+/* ---------- Écran client (client.html) : panier et total en direct ---------- */
+let dispT=null,dispData={s:'idle'};
+function dispSend(){clearTimeout(dispT);dispT=setTimeout(()=>{if(PIN)rpc('fc_set_display',{p_pin:PIN,p_data:dispData}).catch(()=>{})},250)}
+function dispCart(){dispData=cart.length?{s:'cart',lines:cart.map(l=>({q:l.q,name:lineLabel(l),opts:lineOpts(l),p:lineUnit(l)*l.q})),total:cartTotal(),t:Date.now()}:{s:'idle',t:Date.now()};dispSend()}
+function dispPaid(o,tot,mode,given){dispData={s:'paid',n:o.n||null,pager:o.pager||'',total:tot,pay:mode,rendu:mode==='cash'&&given>tot?given-tot:0,t:Date.now()};dispSend()}
+const _renderCart=renderCart;renderCart=function(){_renderCart();dispCart()};
+const _finish=finish;finish=function(mode,given,pager){const tot=cartTotal(),ao=addTo&&S.orders.find(o=>o.id===addTo);_finish(mode,given,pager);
+  const o=ao||S.orders[S.orders.length-1];if(o)dispPaid(o,tot,mode,given)};
 $('#sync').onclick=()=>show('bilan');
 setInterval(()=>{flush();pull()},4000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){flush();pull()}});
