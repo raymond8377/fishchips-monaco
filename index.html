@@ -354,6 +354,13 @@ th{text-transform:none;letter-spacing:0;font-size:13px;font-weight:500}
 .item.ph b{padding-right:0}
 @media (orientation:landscape) and (max-height:520px){.item.ph .pic{aspect-ratio:16/9}.item.ph .txt{padding:6px 9px 7px}.item.ph .badge{width:28px;height:28px}.item.ph .badge .ico{width:18px;height:18px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+@supports not (background:color-mix(in srgb,red 50%,blue)){
+  .item{background:#5a1426!important;background-image:none!important;color:#fff!important}
+  .item.ph .txt{background:#5a1426;color:#fff}
+  .item b,.item .price{color:#fff!important}
+  .item span,.item .price em{color:#f3dde3!important}
+}
 </style>
 
 </head>
