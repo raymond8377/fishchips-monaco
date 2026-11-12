@@ -135,6 +135,11 @@ body::after{content:'';position:fixed;inset:2.6vmin;border:.12vmin solid rgba(20
 .cc img{aspect-ratio:auto!important;width:24vmin!important;height:auto!important;max-height:17vmin!important;object-fit:contain!important;
   -webkit-mask-image:radial-gradient(ellipse 58% 58% at 50% 50%,#000 48%,transparent 98%)!important;mask-image:radial-gradient(ellipse 58% 58% at 50% 50%,#000 48%,transparent 98%)!important}
 @media (orientation:portrait){.cc img{width:22vmin!important}}
+/* Diapos sans cadre : les barquettes détourées sont posées sur le fond, les autres photos se fondent dans le bordeaux */
+.frame{border:0!important;padding:0!important;background:none!important;box-shadow:none!important;outline:0!important}
+.frame img{object-fit:contain}
+.frame img[src$=".webp"]{filter:drop-shadow(0 2.4vmin 3vmin rgba(0,0,0,.45))}
+.frame img[src$=".jpg"]{-webkit-mask-image:radial-gradient(closest-side,#000 68%,transparent 100%);mask-image:radial-gradient(closest-side,#000 68%,transparent 100%)}
 </style>
 </head>
 <body>
