@@ -129,6 +129,15 @@ body::after{content:'';position:fixed;inset:2.6vmin;border:.12vmin solid rgba(20
 
 @media (orientation:landscape){.cg .cc:last-child:nth-child(3n+1){grid-column:1/-1;justify-content:center}.cg .cc:nth-last-child(2):nth-child(3n+1){grid-column:span 1}.cg .cc:last-child:nth-child(3n+2){grid-column:span 2;justify-content:center}}
 @media (orientation:portrait){.cg .cc:last-child:nth-child(odd){grid-column:1/-1;justify-content:center}}
+
+/* Plats fondus dans le fond, sans cadre */
+.frame{border:0!important;padding:0!important;background:none!important;box-shadow:none!important;outline:0!important}
+.frame img,.cc img{border:0!important;box-shadow:none!important;border-radius:0!important;
+  -webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 58%,rgba(0,0,0,.6) 76%,transparent 100%);
+  mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 58%,rgba(0,0,0,.6) 76%,transparent 100%)}
+.cc img{aspect-ratio:auto!important;width:24vmin!important;height:auto!important;max-height:17vmin!important;object-fit:contain!important;
+  -webkit-mask-image:radial-gradient(ellipse 58% 58% at 50% 50%,#000 48%,transparent 98%)!important;mask-image:radial-gradient(ellipse 58% 58% at 50% 50%,#000 48%,transparent 98%)!important}
+@media (orientation:portrait){.cc img{width:22vmin!important}}
 </style>
 </head>
 <body>
