@@ -110,6 +110,25 @@ body::after{content:'';position:fixed;inset:2.6vmin;border:.12vmin solid rgba(20
 
 @media (orientation:portrait){.combo{gap:3vmin}.combo .frame{justify-self:center}.combo .frame img{height:min(26vh,60vw)!important;width:auto!important;max-height:none!important}.li{font-size:4.4vmin;padding-bottom:1.4vmin}.list{gap:2vmin}}
 .combo .frame.sqf img{height:min(56vh,34vw);width:auto;max-height:none}
+
+.carte2{width:100%;height:100%;display:flex;flex-direction:column;gap:2.4vmin;padding:0 0 4vmin}
+.carte2 .ch{display:flex;align-items:center;justify-content:center;gap:3vmin}
+.carte2 .ch img{height:14vmin;width:auto}
+.carte2 .ch b{display:block;font-size:6vmin;line-height:1}
+.carte2 .ch span{display:block;font-size:2.3vmin;font-style:italic;color:var(--gold);margin-top:1vmin}
+.carte2 .cg{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:2vmin}
+.cc{display:flex;align-items:center;gap:2vmin;background:rgba(0,0,0,.2);border:.18vmin solid rgba(201,164,90,.7);border-radius:1.4vmin;padding:1.2vmin;min-height:0;overflow:hidden}
+.cc img{height:100%;max-height:17vmin;aspect-ratio:1/1;width:auto;object-fit:cover;border-radius:1vmin;border:.3vmin solid var(--cream);flex:none}
+.ct{display:flex;flex-direction:column;gap:.8vmin;min-width:0}
+.ct b{font-size:2.9vmin;line-height:1.15;font-weight:700}
+.ct b i{font-weight:400;font-size:2.2vmin}
+.cp{font-size:4.4vmin;color:#fff;line-height:1}
+.cp em{font-style:normal;opacity:.6;margin:0 .8vmin}
+.cp small{display:block;font-size:2vmin;color:var(--cream);opacity:.85;margin-top:.6vmin;font-style:italic}
+@media (orientation:portrait){.carte2 .cg{grid-template-columns:repeat(2,1fr)}.cc img{max-height:14vmin}.ct b{font-size:3.2vmin}.cp{font-size:4.6vmin}}
+
+@media (orientation:landscape){.cg .cc:last-child:nth-child(3n+1){grid-column:1/-1;justify-content:center}.cg .cc:nth-last-child(2):nth-child(3n+1){grid-column:span 1}.cg .cc:last-child:nth-child(3n+2){grid-column:span 2;justify-content:center}}
+@media (orientation:portrait){.cg .cc:last-child:nth-child(odd){grid-column:1/-1;justify-content:center}}
 </style>
 </head>
 <body>
@@ -154,6 +173,23 @@ function itemSlide(img,sq,tagTxt,name,sub,en,prices,extra){
   if(!prices)return '';
   return lay(img,sq,tagTxt,name,sub,`${en?`<div class="en">${FLAG}<span>${en}</span></div>`:''}<div class="prices">${prices}</div>${extra||''}`)}
 const pz=(label,k)=>has(k)?`<div class="pz"><small>${label}</small>${tk(k)}</div>`:'';
+function carteHTML(){
+  const pr=(k)=>has(k)?eur(+P[k]):'';
+  const c=(img,name,main,sub)=>main?`<div class="cc"><img src="${A}${img}" alt=""><div class="ct"><b>${name}</b><span class="cp">${main}${sub?`<small>${sub}</small>`:''}</span></div></div>`:'';
+  const fs=(k)=>has(k+'.formule')?pr(k+'.formule'):pr(k+'.seul');
+  const fsub=(k)=>has(k+'.formule')&&has(k+'.seul')?`seul ${pr(k+'.seul')}`:'';
+  const items=[
+    c('cabillaud.jpg','Fish &amp; chips cabillaud',fs('cab'),fsub('cab')),
+    c('aiguillettes.jpg',"Aiguillettes de colin",fs('aig'),fsub('aig')),
+    c('nuggets.jpg',"Shunk de colin",fs('shk'),fsub('shk')),
+    c('encornets.jpg','Calamars <i>· 5 pcs</i>',pr('enc')),
+    c('c-sj.jpg','Saint-Jacques',pr('sj')),
+    c('c-mix.jpg','Mix Box',fs('mix'),fsub('mix')),
+    c('c-sal.jpg','Saumon planche',pr('sal.pain')||pr('sal.bqf'),''),
+    c('c-frites.jpg','Frites maison',has('pf')?`${pr('pf')}<em>/</em>${pr('gf')}`:pr('gf'),`petite / grande · cheddar +${eur(+P.cheddar)}`),
+    c('c-soda.jpg','Boissons',`${pr('eau')}<em>–</em>${pr('soda')}`,has('beer')?`bière Eco Cup ${eur(+P.beer+(+P.cup||0))}`:'')
+  ].filter(Boolean).join('');
+  return `<div class="carte2"><div class="ch"><img src="${A}logo-clair.png" alt=""><div><b>La carte</b><span>Formule = poisson + grande frite · 🌶️ spicy +${eur(+P.spicy)}</span></div></div><div class="cg">${items}</div></div>`}
 function build(){
   const S=[];
   S.push({full:1,h:`<img class="logo" src="${A}logo-clair.png" alt="Fish & Chips · Christmas Market Monaco">`});
@@ -170,7 +206,7 @@ function build(){
     ${has('soda')?`<div class="li"><span class="n">Soda<small>Coca-Cola, Orangina, Ice Tea…</small></span>${tk('soda')}</div>`:''}
     ${has('ft')?`<div class="li"><span class="n">Fever-Tree<small>British tonic &amp; ginger</small></span>${tk('ft')}</div>`:''}
     ${has('beer')?`<div class="li"><span class="n">Bière en Eco Cup<small>dont ${eur(+P.cup)} de consigne, rendus au retour du verre</small></span><div class="tk"><b>${eur(+P.beer+(+P.cup||0))}</b></div></div>`:''}</div></div>`});
-  S.push({full:1,h:`<img class="carte" src="${A}carte-ecran.jpg" alt="La carte">`});
+  S.push({h:carteHTML()});
   return S.filter(x=>x.h);
 }
 let SL=[],i=-1,last='';
