@@ -185,28 +185,28 @@ function carteHTML(){
   const fs=(k)=>has(k+'.formule')?pr(k+'.formule'):pr(k+'.seul');
   const fsub=(k)=>has(k+'.formule')&&has(k+'.seul')?`seul ${pr(k+'.seul')}`:'';
   const items=[
-    c('cabillaud.jpg','Fish &amp; chips cabillaud',fs('cab'),fsub('cab')),
-    c('aiguillettes.jpg',"Aiguillettes de colin",fs('aig'),fsub('aig')),
-    c('nuggets.jpg',"Shunk de colin",fs('shk'),fsub('shk')),
+    c('cabillaud.webp','Fish &amp; chips cabillaud',fs('cab'),fsub('cab')),
+    c('aiguillettes.webp',"Aiguillettes de colin",fs('aig'),fsub('aig')),
+    c('nuggets.webp',"Shunk de colin",fs('shk'),fsub('shk')),
     c('encornets.jpg','Calamars <i>· 5 pcs</i>',pr('enc')),
-    c('c-sj.jpg','Saint-Jacques',pr('sj')),
+    c('c-sj.webp','Saint-Jacques',pr('sj')),
     c('c-mix.jpg','Mix Box',fs('mix'),fsub('mix')),
     c('c-sal.jpg','Saumon planche',pr('sal.pain')||pr('sal.bqf'),''),
-    c('c-frites.jpg','Frites maison',has('pf')?`${pr('pf')}<em>/</em>${pr('gf')}`:pr('gf'),`petite / grande · cheddar +${eur(+P.cheddar)}`),
+    c('c-frites.webp','Frites maison',has('pf')?`${pr('pf')}<em>/</em>${pr('gf')}`:pr('gf'),`petite / grande · cheddar +${eur(+P.cheddar)}`),
     c('c-soda.jpg','Boissons',`${pr('eau')}<em>–</em>${pr('soda')}`,has('beer')?`bière Eco Cup ${eur(+P.beer+(+P.cup||0))}`:'')
   ].filter(Boolean).join('');
   return `<div class="carte2"><div class="ch"><img src="${A}logo-clair.png" alt=""><div><b>La carte</b><span>Formule = poisson + grande frite · 🌶️ spicy +${eur(+P.spicy)}</span></div></div><div class="cg">${items}</div></div>`}
 function build(){
   const S=[];
   S.push({full:1,h:`<img class="logo" src="${A}logo-clair.png" alt="Fish & Chips · Christmas Market Monaco">`});
-  S.push({h:fishSlide('cabillaud.jpg','Fish and chips','Fish and chips de cabillaud','Accompagné de frites et sauce tartare maison','Cod fish and chips served with fries and homemade tartar sauce','cab.formule','cab.seul')});
-  S.push({h:fishSlide('aiguillettes.jpg','Fish and chips',"Aiguillettes de colin d'Alaska",'Façon fish &amp; chips, accompagné de frites et sauce tartare maison','Alaska pollock fillets fish and chips served with fries and homemade tartar sauce','aig.formule','aig.seul')});
-  S.push({h:fishSlide('nuggets.jpg','Fish and chips',"Shunk de colin d'Alaska","Nuggets de colin d'Alaska façon fish and chips, sauce au choix",'Chunks Alaska pollock nuggets, fish and chips style, with your choice of sauce','shk.formule','shk.seul')});
+  S.push({h:fishSlide('cabillaud.webp','Fish and chips','Fish and chips de cabillaud','Accompagné de frites et sauce tartare maison','Cod fish and chips served with fries and homemade tartar sauce','cab.formule','cab.seul')});
+  S.push({h:fishSlide('aiguillettes.webp','Fish and chips',"Aiguillettes de colin d'Alaska",'Façon fish &amp; chips, accompagné de frites et sauce tartare maison','Alaska pollock fillets fish and chips served with fries and homemade tartar sauce','aig.formule','aig.seul')});
+  S.push({h:fishSlide('nuggets.webp','Fish and chips',"Shunk de colin d'Alaska","Nuggets de colin d'Alaska façon fish and chips, sauce au choix",'Chunks Alaska pollock nuggets, fish and chips style, with your choice of sauce','shk.formule','shk.seul')});
   S.push({h:itemSlide('encornets.jpg',0,'Fritures de la mer','Calamars façon fish and chips','5 pièces, sauce tartare maison et citron','Squid rings, fish and chips style',pz('La barquette','enc'),SP()+BD(PECHE))});
-  S.push({h:itemSlide('c-sj.jpg',1,'Fritures de la mer','Saint-Jacques façon fish and chips','Noix de Saint-Jacques croustillantes, sauce tartare maison','Crispy scallops, fish and chips style',pz('La barquette','sj'),SP()+BD(PECHE))});
+  S.push({h:itemSlide('c-sj.webp',1,'Fritures de la mer','Saint-Jacques façon fish and chips','Noix de Saint-Jacques croustillantes, sauce tartare maison','Crispy scallops, fish and chips style',pz('La barquette','sj'),SP()+BD(PECHE))});
   S.push({h:itemSlide('c-mix.jpg',1,'À partager','Mix Box','Composez votre assortiment : colin, aiguillettes, calamars, Saint-Jacques','Mixed seafood box, your choice',pz('Avec frites','mix.formule')+pz('Sans frites','mix.seul'),SP()+BD(PECHE))});
   S.push({h:itemSlide('c-sal.jpg',1,'Au feu de bois','Saumon planche','Saumon cuit au feu de bois, en pain ou en barquette','Wood-fired salmon, in a sandwich or a tray',pz('En pain','sal.pain')+pz('Barquette + frites','sal.bqf')+pz('Barquette','sal.bq'))});
-  S.push({h:itemSlide('c-frites.jpg',1,'Frites maison','Nos frites maison','Épluchées, coupées et frites sur place','Homemade fries',pz('Petite','pf')+pz('Grande','gf'),`<div class="spicy"><i>Cheddar fondu</i> + ${eur(+P.cheddar)}</div>`+BD('Faites maison sur place','Pommes de terre du Nord','Produit local'))});
+  S.push({h:itemSlide('c-frites.webp',1,'Frites maison','Nos frites maison','Épluchées, coupées et frites sur place','Homemade fries',pz('Petite','pf')+pz('Grande','gf'),`<div class="spicy"><i>Cheddar fondu</i> + ${eur(+P.cheddar)}</div>`+BD('Faites maison sur place','Pommes de terre du Nord','Produit local'))});
   S.push({h:`<div class="combo"><div class="frame sqf"><img src="${A}c-soda.jpg" alt=""></div><div class="list"><span class="tag">Les boissons</span>
     ${has('eau')?`<div class="li"><span class="n">Eau plate / gazeuse<small>Still or sparkling water</small></span>${tk('eau')}</div>`:''}
     ${has('soda')?`<div class="li"><span class="n">Soda<small>Coca-Cola, Orangina, Ice Tea…</small></span>${tk('soda')}</div>`:''}
