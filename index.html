@@ -673,8 +673,66 @@ function escposTicket(o,batch){
   T('Merci et a bientot !');NL();NL();NL();NL();C(29,86,66,0);
   let bin='';B.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin);
 }
+/* iPhone / iPad : envoi du ticket à l'appli « Mobile Print Util » (Bluetooth), en HTML encodé base64 */
+const IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function htmlTicket(o,batch){
+  if(batch){const x=o.extra.find(e=>e.b===batch);o={...o,lines:o.lines.filter(l=>l.b===batch),total:x.total,pay:x.pay,given:x.given,t:x.t,extra:[],isAdd:true}}
+  const d=new Date(o.t),hr='<div style="border-top:2px dashed #000;margin:8px 0"></div>';
+  const row=(l,r,s='')=>`<table style="width:100%;border-collapse:collapse;font-size:24px;${s}"><tr><td>${l}</td><td style="text-align:right;white-space:nowrap;vertical-align:top">${r}</td></tr></table>`;
+  let h=`<div style="font-family:Helvetica,Arial,sans-serif;font-size:24px;color:#000;line-height:1.25">`;
+  h+=`<div style="text-align:center"><div style="font-size:38px;font-weight:bold">FISH &amp; CHIPS</div><div>Monaco · Marché de Noël</div><div>${d.toLocaleDateString('fr-FR')} · ${hm(o.t)}</div></div>${hr}`;
+  if(o.n){h+=`<div style="text-align:center"><div>${o.isAdd?'AJOUT À LA COMMANDE':'VOTRE COMMANDE'}</div><div style="font-size:110px;font-weight:bold;line-height:1">${pad(o.n)}</div>`;
+    if(o.pager)h+=`<div style="font-size:44px;font-weight:bold;border:3px solid #000;border-radius:10px;margin:6px 40px;padding:4px">BIPEUR ${esc(o.pager)}</div>`;h+=`</div>`}
+  else h+=`<div style="text-align:center;font-weight:bold">${o.total<0?'REMBOURSEMENT':'REÇU'}</div>`;
+  h+=hr;
+  o.lines.forEach(l=>{const op=lineOpts(l);h+=row(`${l.q}× ${esc(lineLabel(l))}${op?`<br><span style="font-size:20px">${esc(op)}</span>`:''}`,esc(eur(l.u*l.q)))});
+  h+=hr+row('<b>TOTAL TTC</b>',`<b>${esc(eur(oTotal(o)))}</b>`,'font-size:32px');
+  if(o.total<0)h+=row('Rendu en espèces',esc(eur(-o.total)));
+  else{h+=row(o.pay==='cb'?'Payé par carte':'Espèces reçues',o.pay==='cb'?'':esc(eur(o.given)));if(o.pay==='cash'&&o.given>o.total)h+=row('Rendu',esc(eur(o.given-o.total)))}
+  h+=hr+`<div style="text-align:center;font-size:21px">`;
+  if(o.lines.some(l=>l.id==='cupin'))h+=`Consigne Eco Cup ${esc(eur(price('cup')))} incluse.<br>Rapportez le cup, on vous rembourse.<br>`;
+  if(o.n)h+=`Gardez ce ticket jusqu’au retrait.<br>En cas de souci, montrez-le au stand.<br>`;
+  h+=`Merci et à bientôt !</div><br><br></div>`;
+  return h;
+}
+/* Ticket dessiné en image 576 px (80 mm), partagé vers l'appli Thermer via le menu Partager de l'iPhone */
+function imgTicket(o,batch){
+  if(batch){const x=o.extra.find(e=>e.b===batch);o={...o,lines:o.lines.filter(l=>l.b===batch),total:x.total,pay:x.pay,given:x.given,t:x.t,extra:[],isAdd:true}}
+  const W=576,P=8,cv=document.createElement('canvas'),c=cv.getContext('2d');cv.width=W;cv.height=4000;
+  c.fillStyle='#fff';c.fillRect(0,0,W,4000);c.fillStyle='#000';c.textBaseline='top';
+  let y=10;const F=(s,b)=>c.font=`${b?'bold ':''}${s}px Helvetica, Arial, sans-serif`;
+  const ctr=(s,sz,b)=>{F(sz,b);c.textAlign='center';c.fillText(s,W/2,y);y+=sz*1.22};
+  const wrap=(s,max)=>{const out=[];let cur='';s.split(' ').forEach(w=>{const tt=cur?cur+' '+w:w;if(c.measureText(tt).width>max&&cur){out.push(cur);cur=w}else cur=tt});out.push(cur);return out};
+  const row=(l,r,sz,b)=>{F(sz,b);c.textAlign='right';c.fillText(r,W-P,y);const rw=r?c.measureText(r).width+16:0;c.textAlign='left';
+    wrap(l,W-2*P-rw).forEach(s=>{c.fillText(s,P,y);y+=sz*1.25})};
+  const hr=()=>{y+=6;c.setLineDash([8,6]);c.lineWidth=2;c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke();c.setLineDash([]);y+=12};
+  const d=new Date(o.t);
+  ctr('FISH & CHIPS',40,true);ctr('Monaco · Marché de Noël',24);ctr(d.toLocaleDateString('fr-FR')+' · '+hm(o.t),24);hr();
+  if(o.n){ctr(o.isAdd?'AJOUT À LA COMMANDE':'VOTRE COMMANDE',26);ctr(pad(o.n),130,true);
+    if(o.pager){y+=4;c.lineWidth=4;c.strokeRect(60,y-4,W-120,62);ctr('BIPEUR '+o.pager,48,true);y+=8}}
+  else ctr(o.total<0?'REMBOURSEMENT':'REÇU',30,true);
+  hr();
+  o.lines.forEach(l=>{row(`${l.q}× ${lineLabel(l)}`,eur(l.u*l.q),26);const op=lineOpts(l);if(op)row('   '+op,'',21)});
+  hr();row('TOTAL TTC',eur(oTotal(o)),36,true);
+  if(o.total<0)row('Rendu en espèces',eur(-o.total),24);
+  else{row(o.pay==='cb'?'Payé par carte':'Espèces reçues',o.pay==='cb'?'':eur(o.given),24);if(o.pay==='cash'&&o.given>o.total)row('Rendu',eur(o.given-o.total),24)}
+  hr();
+  if(o.lines.some(l=>l.id==='cupin')){ctr(`Consigne Eco Cup ${eur(price('cup'))} incluse.`,22);ctr('Rapportez le cup, on vous rembourse.',22)}
+  if(o.n){ctr('Gardez ce ticket jusqu’au retrait.',22);ctr('En cas de souci, montrez-le au stand.',22)}
+  ctr('Merci et à bientôt !',22);y+=30;
+  const out=document.createElement('canvas');out.width=W;out.height=Math.ceil(y);out.getContext('2d').drawImage(cv,0,0);return out;
+}
+function shareTicket(o,batch){
+  const url=imgTicket(o,batch).toDataURL('image/png'),bin=atob(url.split(',')[1]),u8=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
+  const file=new File([u8],`ticket-${o.n?pad(o.n):'recu'}.png`,{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file]}).catch(()=>{});return}
+  const w=window.open();if(w){w.document.write(`<img src="${url}" style="width:100%">`)}else toast('Partage impossible sur cet appareil');
+}
 function printTicket(o,batch){
-  try{const b64=escposTicket(o,batch);
+  try{
+    if(IS_IOS){shareTicket(o,batch);return}
+    const b64=escposTicket(o,batch);
     window.location.href='intent:base64,'+b64+'#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;';
   }catch(e){toast('Impression impossible')}
 }

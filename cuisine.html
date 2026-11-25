@@ -40,11 +40,11 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var
 .sync.off i{background:var(--danger)}
 .sync.off{color:var(--danger)}
 .filters{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
-.chip{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:9px 12px;font-weight:500;font-size:15px;display:flex;gap:6px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:12px 16px;font-weight:600;font-size:19px;display:flex;gap:6px;align-items:center}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
 .tools{display:flex;gap:6px}
-.tool{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:9px 12px;font-weight:500;font-size:15px}
+.tool{border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:12px 16px;font-weight:600;font-size:18px}
 .tool[aria-pressed="true"]{border-color:var(--chips);color:var(--chips)}
 
 main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 120px}
@@ -56,25 +56,25 @@ main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px
 .rcard span{font-size:13px;color:var(--muted)}
 .rlabel{flex:none;align-self:center;font-weight:600;color:var(--ok);font-size:15px}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;align-items:start}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));gap:12px;align-items:start}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px;min-width:0}
 .card.add{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent)}
 .card.fresh{animation:flash 1.2s ease 2}
 @keyframes flash{50%{background:#f6edd2;background:color-mix(in srgb,var(--chips) 22%,var(--surface))}}
 .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.top .n{font-size:44px;font-weight:700;line-height:1}
-.pager{background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:5px 10px;font-weight:700;font-size:17px}
+.top .n{font-size:64px;font-weight:700;line-height:1}
+.pager{background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:6px 14px;font-weight:800;font-size:28px}
 .tag{font-size:13px;font-weight:700;border-radius:6px;padding:3px 8px;background:var(--accent);color:var(--accent-ink)}
-.age{margin-left:auto;font-size:15px;font-weight:600;color:var(--muted)}
+.age{margin-left:auto;font-size:19px;font-weight:600;color:var(--muted)}
 .age.late{color:var(--danger)}
-.poste{display:grid;gap:4px;padding:4px 0 4px 12px;border-left:5px solid var(--c)}
-.poste .pn{font-size:13px;font-weight:700;color:var(--c)}
-.poste div{font-size:20px;font-weight:600;line-height:1.25}
-.poste small{display:block;font-size:15px;font-weight:500;color:var(--muted)}
+.poste{display:grid;gap:8px;padding:4px 0 4px 12px;border-left:5px solid var(--c)}
+.poste .pn{font-size:17px;text-transform:uppercase;letter-spacing:.04em;font-weight:700;color:var(--c)}
+.poste div{font-size:28px;font-weight:700;line-height:1.25}
+.poste small{display:block;font-size:19px;font-weight:500;color:var(--muted)}
 .hot{color:var(--danger)}
 .addtag{display:inline-block;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:700;padding:2px 6px;border-radius:4px;margin-right:6px;vertical-align:3px}
 .served{opacity:.4;text-decoration:line-through}
-.done-btn{background:var(--ok);color:#06190e;border-radius:10px;padding:18px 12px;font-size:20px;font-weight:700;width:100%}
+.done-btn{background:var(--ok);color:#06190e;border-radius:12px;padding:22px 12px;font-size:26px;font-weight:700;width:100%}
 .done-btn:active{filter:brightness(.9)}
 .empty{text-align:center;color:var(--muted);padding:60px 16px;font-size:18px;max-width:46ch;margin:0 auto}
 .empty b{display:block;color:var(--ink);font-size:22px;margin-bottom:6px}
@@ -104,11 +104,18 @@ main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px
 .login input{font:600 28px var(--font);letter-spacing:.2em;text-align:center;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);width:100%}
 .login button{background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:14px;font-weight:700;font-size:18px}
 .err{color:var(--danger);font-weight:600;min-height:1.3em}
+.todo{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;padding:12px;border-radius:14px;background:var(--surface);border:2px solid var(--fry)}
+.todo:empty{display:none}
+.todo h2{flex-basis:100%;margin:0 0 2px;font-size:18px;color:var(--fry);text-transform:uppercase;letter-spacing:.05em}
+.tile{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:12px;padding:8px 16px 8px 10px}
+.tile svg{width:64px;height:64px;flex:none}
+.tile b{font-size:56px;line-height:1;font-variant-numeric:tabular-nums}
+.tile span{font-size:17px;color:var(--muted);font-weight:600;max-width:9em;line-height:1.15}
 @media (prefers-reduced-motion:reduce){.card.fresh{animation:none}}
 .poste div{display:flex;align-items:center;flex-wrap:wrap;gap:0 6px}
 .poste div small{flex-basis:100%}
 .pics{display:inline-flex;gap:6px;vertical-align:middle;margin-right:8px}
-.pics svg{width:40px;height:40px;flex:none}
+.pics svg{width:54px;height:54px;flex:none}
 </style>
 </head>
 <body>
@@ -133,6 +140,7 @@ main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px
     </div>
   </header>
   <main>
+    <div class="todo" id="todo"></div>
     <div class="ready" id="ready"></div>
     <div class="grid" id="grid"></div>
     <div class="empty" id="empty" hidden><b>Rien à préparer</b>Les commandes arrivent ici dès qu'elles sont encaissées à la caisse.</div>
@@ -238,8 +246,20 @@ function renderFilters(){
   $('#filters').innerHTML=['all','fry','salmon','chips','bar'].map(k=>{const n=prep.filter(o=>has(o,k)).length;
     return `<button class="chip" data-f="${k}" aria-pressed="${filter===k}">${k==='all'?'Tout':`<i class="dot" style="background:${POSTES[k].c}"></i>${POSTES[k].name}`} · ${n}</button>`}).join('');
 }
+/* Total à cuire : pièces encore à préparer, toutes commandes en cours confondues */
+const TODO=[['cab','fry','Cabillaud'],['aig','fry','Aiguillettes'],['shk','fry','Shunk'],['enc','fry','Encornets'],['sj','fry','St-Jacques'],['mix','fry','Mix Box'],
+  ['sal','salmon','Saumon'],['ff','chips','Frites formule'],['gf','chips','Grande frite'],['pf','chips','Petite frite']];
+function renderTodo(){
+  const n={};const add=(k,q)=>{n[k]=(n[k]||0)+q};
+  orders.filter(o=>o.status==='prep').forEach(o=>(o.lines||[]).forEach(l=>{
+    if((l.b||0)<=o.doneB)return;const m=MENU[l.id];if(!m||m.poste==='bar')return;
+    add(l.id,l.q);const v=m.v&&m.v.find(x=>x.k===l.variant);if(v&&v.chips)add('ff',l.q)}));
+  const tiles=TODO.filter(([k,p])=>n[k]&&(filter==='all'||filter===p))
+    .map(([k,p,lab])=>`<div class="tile" style="--c:${POSTES[p].c}">${k==='ff'?FRY_SVG:ICON[k]}<b>${n[k]}</b><span>${lab}</span></div>`).join('');
+  $('#todo').innerHTML=tiles?`<h2>À préparer en tout</h2>${tiles}`:'';
+}
 function render(){
-  renderFilters();
+  renderFilters();renderTodo();
   const prep=orders.filter(o=>o.status==='prep'&&has(o,filter)).sort((a,b)=>a.t-b.t);
   const ready=orders.filter(o=>o.status==='ready').sort((a,b)=>a.n-b.n);
   $('#ready').innerHTML=ready.length?`<span class="rlabel">Prêtes</span>`+ready.map(o=>`<button class="rcard" data-r="${o.id}"><small>${o.pager?'Bipeur '+esc(o.pager):'À appeler'}</small><b>${pad(o.n)}</b><span>Toucher pour rouvrir</span></button>`).join(''):'';
