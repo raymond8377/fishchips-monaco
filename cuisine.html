@@ -333,6 +333,12 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 document.addEventListener('click',wake,{passive:true});
 
 start();
+
+/* Mise à jour automatique : si une nouvelle version est en ligne, la page se recharge toute seule */
+const APP_V='2026-11-26a';
+async function checkUpdate(){try{const r=await fetch(location.pathname+'?_='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const APP_V='([^']+)'/);
+  if(m&&m[1]!==APP_V){const k='fc-upd-'+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');location.replace(location.pathname+'?v='+m[1])}}catch(e){}}
+checkUpdate();setInterval(checkUpdate,120000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()});
 </script>
 </body>
 </html>
