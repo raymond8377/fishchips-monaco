@@ -843,7 +843,7 @@ function renderBilan(){
   const s=stats(),cupP=price('cup');
   const d=new Date(S.dayStart).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
   $('#v-bilan').innerHTML=`<div class="lbl" style="margin-bottom:8px">Journée ouverte le ${d} à ${hm(S.dayStart)}</div>
-   <div class="panel" style="margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><b style="flex:1;min-width:200px">🖨 Imprimante tickets (appli RawBT)</b>
+   <div class="panel" style="margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><b style="flex:1;min-width:200px">🖨 Imprimante tickets (${IS_IOS?"iPhone : appli Thermer":"Android : appli RawBT"})</b>
      <button class="btn ${PRINT_AUTO()?'btn-primary':'btn-ghost'}" onclick="setPrintAuto(${PRINT_AUTO()?0:1})">${PRINT_AUTO()?'Impression auto : OUI':'Impression auto : NON'}</button>
      <button class="btn btn-ghost" onclick="printTicket({id:'test',n:999,t:Date.now(),pager:'12',lines:[{id:'cab',variant:'formule',q:1,u:17,mix:[]}],total:17,pay:'cb',given:17,extra:[]})">Ticket test</button></div>
    <div class="kpis">
