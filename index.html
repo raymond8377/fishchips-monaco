@@ -738,6 +738,16 @@ function printTicket(o,batch){
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-print]');if(!b)return;e.stopPropagation();
   const o=S.orders.find(x=>x.id===b.dataset.print);if(o)printTicket(o,b.dataset.b?+b.dataset.b:undefined)},true);
+/* Impression auto : pas d'écran ticket, juste un message rapide puis retour à la caisse */
+function autoDone(o,tot,mode,given,isAdd){
+  const parts=[];
+  if(o.n)parts.push((isAdd?'Ajout ':'Commande ')+pad(o.n));
+  if(o.pager)parts.push('Bipeur '+o.pager);
+  if(mode==='cash'&&given>tot)parts.push('À RENDRE : '+eur(given-tot));
+  else if(tot<0)parts.push('Rendez '+eur(-tot));
+  parts.push('ticket imprimé');
+  toast(parts.join(' · '),mode==='cash'&&given>tot?6000:3000);
+}
 function finish(mode,given,pager){
   const ao=addTo&&S.orders.find(o=>o.id===addTo);
   if(ao){
@@ -747,6 +757,7 @@ function finish(mode,given,pager){
     if(hasPrep)ao.status='prep';
     push({t:'save',id:ao.id});if(hasPrep)push({t:'status',id:ao.id,status:'prep'});
     addTo=null;cart=[];save();renderCart();$('#cart').classList.remove('open');updateBadge();
+    if(PRINT_AUTO()){printTicket(ao,b);autoDone(ao,tot,mode,given,true);return}
     sheet(`<div class="done-n"><span class="lbl">Ajout enregistré</span><div class="big">${pad(ao.n)}</div>${ao.pager?`<span class="pager" style="font-size:18px;margin-top:6px">Bipeur n° ${esc(ao.pager)}</span>`:''}</div>
       <div class="tickets">${hasPrep?kitchenTicket(ao,b):''}${clientTicket(ao,b)}</div>
       <button class="btn btn-ghost" data-print="${ao.id}" data-b="${b}">🖨 Imprimer le ticket</button>
@@ -759,6 +770,7 @@ function finish(mode,given,pager){
   const o={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),n:prep?S.counter:null,t:Date.now(),
     lines:cart.map(l=>({...l,u:lineUnit(l),b:0})),total:cartTotal(),pay:mode,given,pager:prep?(pager||''):'',status:prep?'prep':'done',extra:[],batches:0,doneB:-1};
   S.orders.push(o);push({t:'save',id:o.id});save();cart=[];renderCart();$('#cart').classList.remove('open');updateBadge();
+  if(PRINT_AUTO()){printTicket(o);autoDone(o,o.total,mode,given);return}
   const head=o.n?`<div class="done-n"><span class="lbl">Commande validée · numéro à annoncer</span><div class="big">${pad(o.n)}</div>${o.pager?`<span class="pager" style="font-size:18px;margin-top:6px">Bipeur n° ${esc(o.pager)}</span>`:''}</div>`
     :`<div class="done-n"><span class="lbl">${o.total<0?'Rendez au client':'Opération enregistrée'}</span><div class="big">${eur(Math.abs(o.total))}</div></div>`;
   sheet(`${head}<div class="tickets">${o.n?kitchenTicket(o):''}${clientTicket(o)}</div>
@@ -893,7 +905,7 @@ function sheet(html,onclick,cls=''){$('#layer').innerHTML=`<div class="scrim"></
 function closeSheet(){$('#layer').innerHTML=''}
 function confirmBox(title,txt,label,fn){sheet(`<h3>${esc(title)}</h3><p style="margin:0">${esc(txt)}</p><div class="row2"><button class="btn btn-ghost" data-x>Retour</button><button class="btn btn-danger" data-y>${esc(label)}</button></div>`,
   e=>{if(e.target.closest('[data-x]'))closeSheet();if(e.target.closest('[data-y]')){closeSheet();fn()}},'single')}
-let tt;function toast(m){clearTimeout(tt);document.querySelector('.toast')?.remove();const d=document.createElement('div');d.className='toast';d.textContent=m;document.body.appendChild(d);tt=setTimeout(()=>d.remove(),1500)}
+let tt;function toast(m,ms){clearTimeout(tt);document.querySelector('.toast')?.remove();const d=document.createElement('div');d.className='toast';d.textContent=m;document.body.appendChild(d);tt=setTimeout(()=>d.remove(),ms||1500)}
 function show(v){view=v;document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.v===v));
   ['caisse','cuisine','bilan'].forEach(k=>$('#v-'+k).hidden=k!==v);if(v==='cuisine')renderKitchen();if(v==='bilan')renderBilan();if(v==='caisse')renderObar()}
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>show(t.dataset.v));
@@ -979,7 +991,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 renderCatalog();renderCart();updateBadge();syncUI();flush();
 
 /* Mise à jour automatique : si une nouvelle version est en ligne, la page se recharge toute seule */
-const APP_V='2026-11-26a';
+const APP_V='2026-11-26b';
 async function checkUpdate(){try{const r=await fetch(location.pathname+'?_='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const APP_V='([^']+)'/);
   if(m&&m[1]!==APP_V){const k='fc-upd-'+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');location.replace(location.pathname+'?v='+m[1])}}catch(e){}}
 checkUpdate();setInterval(checkUpdate,120000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()});
